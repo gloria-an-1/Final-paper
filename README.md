@@ -4,6 +4,8 @@ This repo contains R scripts and an RMarkdown file used to analyze 2017 to 2020 
 
 Contents
 
-R scrips can be found in /scripts
-R markdown, references, and the final pdf can be found in /outputs
-CSV file of raw data can be found in /inputs
+-R scrips can be found in /scripts
+
+-R markdown, references, and the final pdf can be found in /outputs
+
+-CSV file of raw data can be found in /inputs
