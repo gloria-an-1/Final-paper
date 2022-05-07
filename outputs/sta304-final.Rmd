@@ -1,0 +1,145 @@
+---
+title: "Population and poverty relationship in the U.S."
+author: 
+  - Nan An
+thanks: "Code and data are available at: https://github.com/gloria-an-1/Final-paper."
+date: "`r format(Sys.time(), '%d %B %Y')`"
+abstract: "Population and poverty people percentage data in the U.S. is pulled from the United States Census Bureau and Census US Population department. It is used to analyze the relationship between population and poverty status by state, within the time from 2017 to 2020. In this report, we will use visualized data to explore the real situation of poverty and population in each state in the U.S. and apply the linear regression analysis to find the relationship equation in the U.S. In the end, we discuss the underlying economic and political problem related to population and poverty."
+output:
+  bookdown::pdf_document2
+toc: FALSE
+bibliography: references.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, include=FALSE}
+library(readxl)
+library(tidyverse)
+library(dplyr)
+library(ggpubr)
+library(ggplot2)
+library(lubridate)
+library(knitr)
+```
+
+# Introduction
+
+There is always a question about how high fertility and related demographic variables affect and are affected by poverty. In the 1960s and 1970s, the popular view was that fertility decline would slow population growth in developing countries and thus reduce poverty(@dd). Looking into the relationship between population and poverty is very important for the government to make population and economic policies. In the following research, we would choose the U.S. as our example, seeing the relationship between population and poverty status in terms of different states in the U.S.
+
+In the U.S., People and families are considered poor when they lack the economic resources necessary to experience a minimal living standard. Official U.S. Census Bureau statistics estimate that 37 million persons, 11.4 percent of the total population, were poor in the United States in 2020(@p1).
+
+This report contains two main sections of data, one focusing on poverty and the other on population in 2017-2022, collected from the United States Census Bureau and Census US Population, after combing them together, we use data visualization to make two maps with population and poverty people percentage by state. Besides, we use ggplot to get the linear regression line and make a box plot to see how strong the relationship is between population and poverty.
+
+In the end, we find there is a slightly positive relationship between population and poverty. It might mean that the adverse effects of rapid population growth on child health, and possibly on education, will likely increase poverty in the next generation(@ee).
+
+
+# Data
+
+The data set will be processed and analyzed in R [@citeR] primarily using the tidyverse [@citetidy], dplyr [@citedp] packages and [@citedp] packages . Figures and tables will be created with ggplot2 [@citegg]. The packages readxl [@citexl], ggpubr [@citebr], usmap [@usmap] and lubridate [@citelu] are used to generate the R markdown report.
+
+## Data Collection process
+The majority of data is collected by the United States Census Bureau, through serveries called Income and Poverty in the United States: 2020(@uspoverty). The estimates are conducted in terms of income and poverty to evaluate national economic trends and understand their effect on the well-being of households, families, and individuals. Also, in order to see the relationship between poverty and population in the U.S., we collect the population data in the 2019 Census US Population Data By State from Kaggle(@uspopulation). This report contains two main sections, one focusing on poverty and the other on population.
+
+### Data Cleaning
+
+In the data Percentage of People in Poverty by State Using 2- and 3-Year Averages:  2017-2018 and 2019-2020 from the United States Census Bureau, there are State names, Populations in thousands, Margins of error in percentage points, Population as of March of the following year, Information on confidentiality protection, sampling error and nonsamping error included. Here we select only a 3-year average Percentage of the population in poverty by state.
+
+In the data 2019 Census US Population Data By State, there are State names, Population estimates, and Latitude and Longitude data for each state's capital city. We only select State names, Population estimates here. Then, we combine these two datasets together using the loop of states' names, making a new dataset including 4 columns: states' names, the abbreviation of states' names, the population in each state, and the poverty population percentage.
+
+
+### Drawbacks
+
+As there is no specific year that has exact data of both population by state and poverty percentage, we use the population data in 2019 and poverty information in 2017-2020, so there might be some discrepancy.
+
+```{r, include=FALSE}
+#specify the packages of interest
+packages = c("gtrendsR","tidyverse","usmap")
+```
+
+```{r, include=FALSE}
+#install.packages("usmap")
+library(usmap) #import the package
+library(ggplot2) #use ggplot2 to add layer for visualization
+```
+
+```{r, include=FALSE}
+data1<- read_excel("/Users/gloriaan/Desktop/poverty.xlsx")
+data1
+```
+
+```{r, include=FALSE}
+data1$pop1
+
+```
+
+
+
+# Data Visualization
+
+## Map of population by state in the U.S.
+
+Then we plot a visualized map to see the difference in each province's population in the U.S. The following graph is the map with population values by states in 2014 in the U.S. The states with lighter colours means the ones with more population, for example, CA(California) has the largest population of 38.6 million in 2014. TX(Texas) has the second largest population of 26.96 million in 2014. NY(New York) province also has a large population of 19.65 million in the same year. The "e" means 10 million on the following map.
+
+
+```{r, echo=FALSE}
+names(statepop)[4] <- "Population"
+plot_usmap(data = statepop, values = "Population", labels = TRUE, label_color = "green")
+```
+
+## Map of poverty percentage by state in the U.S.
+
+Then we plot a visualized map to see the difference in each province's poverty percentage in the U.S. The following graph is the map with the value of the percentage of people in poverty by state in 2014 in the U.S. The states with lighter colours mean the ones with more poverty people. 
+
+For example, The highest poverty rate in the country is in Mississippi(MS), where 19.6% of the population lives in poverty. However, this has improved from 2012, when the state's poverty rate was nearly 25%. Mississippi has the lowest median household income of any state at $45,792. Mississippi's educational attainment levels are among the lowest in the U.S., with about 84.5% of adults graduating high school and 22% of adults having at least a bachelor’s degree(@cc). At the same time, Mississippi is the 32nd largest and 35th-most populous of the 50 U.S. states, with 2.976 million in 2019. It seems that the place with more poverty people doesn't have more population in the U.S.
+
+```{r, echo=FALSE}
+names(statepov)[4] <- "Poverty_index"
+plot_usmap(data = statepov, values = "Poverty_index", labels = TRUE, label_color = "red")
+```
+
+# Model 
+
+Then we use ggplot to make a model see the relationship between population and poverty situation in each state in the U.S., then use a regression line to make the relationship much clearer. The final equation is pop = 3900,000 + 230,000x, we can see there is still a positive relationship technically. Little direct evidence on the impact of population growth exists. Rapid population growth is likely to reduce per capita income growth and well-being, which tends to increase poverty. Also, in densely populated poor nations with pressure on land, rapid population growth increases landlessness and hence the incidence of poverty(@ee).
+
+```{r,warning=FALSE,echo=FALSE,error=FALSE}
+ggplot(data1, aes(pov1, pop1))+
+  geom_point() +
+  geom_smooth(method = "lm")+
+  stat_regline_equation(label.pov1=1, label.pop1 =1)
+```
+Then we plot a box plot to see how strong the relationship is, so we can see it is not a strong positive relationship and still have four outliers.
+
+```{r,echo=FALSE}
+library(ggplot2)
+# Basic box plot
+p <- ggplot(data1, aes(x=pov1, y=pop1)) + 
+  geom_boxplot()
+p
+```
+
+
+
+# Results
+In the end, after using linear regression, we find that the final equation of the relationship between population and poverty is pop = 3900,000 + 230,000pov. However, as the variance is big and outliers exist, the relationship is not that strong and clear, and from this research, we cannot tell whether the population is influenced by poverty or is influencing poverty.
+
+Poverty would be both influenced by – and influences – population dynamics, including population growth, age structure, and rural-urban distribution. All of this has a critical impact on a country’s development prospects and prospects for raising living standards for the poor. Investments in better health, including reproductive health, are essential for individual security and for reducing mortality and morbidity, which in turn improve a country’s productivity and development prospects(@hh).
+
+# Discussion
+
+This chapter presents estimates of the number of people in poverty and identifies factors that are related to poverty such as population. 
+
+Actually, a country’s economic growth and poverty situation are often shaped by many other factors, such as different age groups, family planning etc. 
+
+For example, seeing in terms of overarching demographic trends, the young group does matter. Developing countries with large youth populations and declining fertility rates could see their economies soar, provided they invest heavily in young people’s education and health and protect their rights. Potential economic gains could be realized through a 'demographic dividend,' which can occur when a country’s working-age population grows larger relative to dependent populations, the report shows(@hh).
+
+Family planning is important an important part of this process because many countries have large youth populations that will almost ensure continued rapid population growth unless fertility declines, which is what offers the possibility of a demographic dividend(@hh).
+
+
+\newpage
+
+
+# References
+
